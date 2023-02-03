@@ -25,11 +25,11 @@ def main(listnum) -> None:
 	print(f"Loading {f}")
 	aud = AudioSegment.from_file(f)
 
-	# Split track where the silence is 1 seconds or more and get chunks 
+	# Split track where the silence is 0.5 seconds or more and get chunks 
 	print("Splitting...")
 	chunks = split_on_silence (
 	    aud, 
-	    min_silence_len = 1000,
+	    min_silence_len = 500,
 	    silence_thresh = -48
 	)
 	print(f"n chunks: {len(chunks)}")
