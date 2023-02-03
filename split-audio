@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
 # Import the AudioSegment class for processing audio and the 
-# split_on_silence function for separating out silent chunks.
+# split_on_silence function for separating out silent chunks
 import os
 import argparse
 from pydub import AudioSegment
 from pydub.silence import split_on_silence
 
 def main(listnum) -> None:
-	# Define a function to normalize a chunk to a target amplitude.
+	# Define a function to normalize a chunk to a target amplitude
 	def match_target_amplitude(aChunk, target_dBFS):
 	    ''' Normalize given audio chunk '''
 	    change_in_dBFS = target_dBFS - aChunk.dBFS
@@ -21,12 +21,11 @@ def main(listnum) -> None:
 	    print(f"List does not exist yet, creating {split_dir}")
 	    os.mkdir(split_dir)
 
-	# Load your audio.
+	# Load audio
 	print(f"Loading {f}")
 	aud = AudioSegment.from_file(f)
 
-	# Split track where the silence is 1 seconds or more and get chunks using 
-	# the imported function.
+	# Split track where the silence is 1 seconds or more and get chunks 
 	print("Splitting...")
 	chunks = split_on_silence (
 	    aud, 
@@ -35,18 +34,18 @@ def main(listnum) -> None:
 	)
 	print(f"n chunks: {len(chunks)}")
 
-	# Process each chunk with your parameters
+	# Pad and normalize each chunk
 	for i, chunk in enumerate(chunks):
-	    # Create a silence chunk that's 0.1 seconds (or 100 ms) long for padding.
+	    # Create a silence chunk that's 0.1 seconds (or 100 ms) long for padding
 	    silence_chunk = AudioSegment.silent(duration=100)
 
-	    # Add the padding chunk to beginning and end of the entire chunk.
+	    # Add the padding chunk to beginning and end of the entire chunk
 	    audio_chunk = silence_chunk + chunk + silence_chunk
 
-	    # Normalize the entire chunk.
+	    # Normalize the entire chunk
 	    normalized_chunk = match_target_amplitude(audio_chunk, -20.0)
 
-	    # Export the audio chunk with new bitrate.
+	    # Export the audio chunk with new bitrate
 	    f_new = split_dir + f"chunk-{i}.wav"
 	    print(f"Splitting {f} into {f_new}")
 	    normalized_chunk.export(
