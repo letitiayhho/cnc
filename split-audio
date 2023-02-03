@@ -1,47 +1,67 @@
-#!
+#!/usr/bin/env python
 
 # Import the AudioSegment class for processing audio and the 
 # split_on_silence function for separating out silent chunks.
+import os
+import argparse
 from pydub import AudioSegment
 from pydub.silence import split_on_silence
 
-# Define a function to normalize a chunk to a target amplitude.
-def match_target_amplitude(aChunk, target_dBFS):
-    ''' Normalize given audio chunk '''
-    change_in_dBFS = target_dBFS - aChunk.dBFS
-    return aChunk.apply_gain(change_in_dBFS)
+def main(listnum) -> None:
+	# Define a function to normalize a chunk to a target amplitude.
+	def match_target_amplitude(aChunk, target_dBFS):
+	    ''' Normalize given audio chunk '''
+	    change_in_dBFS = target_dBFS - aChunk.dBFS
+	    return aChunk.apply_gain(change_in_dBFS)
 
-# Load your audio.
-file = "stim/mono/list_" + listnum + ".wav"
-song = AudioSegment.from_mp3(file)
+	# Constants
+	f = "stim/mono/list_" + listnum + ".wav"
+	split_dir = f"stim/split/list-{listnum}/"
+	if not os.path.isdir(split_dir):
+	    print(f"List does not exist yet, creating {split_dir}")
+	    os.mkdir(split_dir)
 
-# Split track where the silence is 2 seconds or more and get chunks using 
-# the imported function.
-chunks = split_on_silence (
-    # Use the loaded audio.
-    song, 
-    # Specify that a silent chunk must be at least 2 seconds or 2000 ms long.
-    min_silence_len = 2000,
-    # Consider a chunk silent if it's quieter than -16 dBFS.
-    # (You may want to adjust this parameter.)
-    silence_thresh = -16
-)
+	# Load your audio.
+	print(f"Loading {f}")
+	aud = AudioSegment.from_file(f)
 
-# Process each chunk with your parameters
-for i, chunk in enumerate(chunks):
-    # Create a silence chunk that's 0.1 seconds (or 100 ms) long for padding.
-    silence_chunk = AudioSegment.silent(duration=100)
+	# Split track where the silence is 1 seconds or more and get chunks using 
+	# the imported function.
+	print("Splitting...")
+	chunks = split_on_silence (
+	    aud, 
+	    min_silence_len = 1000,
+	    silence_thresh = -48
+	)
+	print(f"n chunks: {len(chunks)}")
 
-    # Add the padding chunk to beginning and end of the entire chunk.
-    audio_chunk = silence_chunk + chunk + silence_chunk
+	# Process each chunk with your parameters
+	for i, chunk in enumerate(chunks):
+	    # Create a silence chunk that's 0.1 seconds (or 100 ms) long for padding.
+	    silence_chunk = AudioSegment.silent(duration=100)
 
-    # Normalize the entire chunk.
-    normalized_chunk = match_target_amplitude(audio_chunk, -20.0)
+	    # Add the padding chunk to beginning and end of the entire chunk.
+	    audio_chunk = silence_chunk + chunk + silence_chunk
 
-    # Export the audio chunk with new bitrate.
-    print("Exporting list-{0}_chunk-{1}.mp3.".format(listnum, i))
-    normalized_chunk.export(
-        ".//list-{0}_chunk-{1}.mp3".format(listnum, i),
-        bitrate = "192k",
-        format = "mp3"
-    )
+	    # Normalize the entire chunk.
+	    normalized_chunk = match_target_amplitude(audio_chunk, -20.0)
+
+	    # Export the audio chunk with new bitrate.
+	    f_new = split_dir + f"chunk-{i}.wav"
+	    print(f"Splitting {f} into {f_new}")
+	    normalized_chunk.export(
+		f_new,
+		#bitrate = "705k",
+		format = "wav"
+	    )
+
+if __name__ == "__main__":
+	parser = argparse.ArgumentParser(description = "Split audio by silences, pass in listnum")
+	parser.add_argument('listnum',
+		type = str,
+		nargs = 1,
+		help = 'list number')
+	args = parser.parse_args()
+	listnum = args.listnum[0]
+	print(f"listnum: {listnum}")
+	main(listnum)
