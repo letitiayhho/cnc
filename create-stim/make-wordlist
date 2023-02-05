@@ -7,7 +7,7 @@ import pandas as pd
 from pathlib import PurePath
 
 def open_wordlist(listnum):
-	wordlist = f'stim/wordlist/list-{listnum}.csv'
+	wordlist = f'../stim/wordlist/list-{listnum}.csv'
 	if not os.path.isfile(wordlist):
 		d = {
 			'type': [],
@@ -34,7 +34,7 @@ def sort_wordlist(df):
 	return(df)
 
 def main(listnum) -> None:
-	dir = f'stim/labels/list-{listnum}'
+	dir = f'../stim/labels/list-{listnum}'
 	files = list(glob.glob(os.path.join(dir, '*.wav')))
 
 	wordlist = open_wordlist(listnum)

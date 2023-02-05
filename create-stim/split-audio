@@ -15,8 +15,8 @@ def main(listnum) -> None:
 	    return aChunk.apply_gain(change_in_dBFS)
 
 	# Constants
-	f = "stim/mono/list_" + listnum + ".wav"
-	split_dir = f"stim/split/list-{listnum}/"
+	f = "../stim/mono/list_" + listnum + ".wav"
+	split_dir = f"../stim/split/list-{listnum}/"
 	if not os.path.isdir(split_dir):
 	    print(f"List does not exist yet, creating {split_dir}")
 	    os.mkdir(split_dir)

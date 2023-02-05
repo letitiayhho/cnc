@@ -6,7 +6,7 @@ import eng_to_ipa
 
 def main(listnum) -> None:
 	# Load wordlist
-	file = f'stim/wordlist/list-{listnum}.csv'
+	file = f'../stim/wordlist/list-{listnum}.csv'
 	wordlist = pd.read_csv(file)
 
 	# Convert words to IPA

@@ -4,9 +4,9 @@ set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
 
-for f in stim/raw/*.wma; do
+for f in ../stim/wav/list_*.wav; do
 	listnum=$(echo $f | sed -e 's/[^0-9]//g')
-	f_new="stim/wav/list_${listnum}.wav"
+	f_new="../stim/mono/list_${listnum}.wav"
 	echo "Converting ${f} to ${f_new}"
-	ffmpeg -i "$f" "$f_new"
+	sox "$f" "$f_new" remix 1
 done

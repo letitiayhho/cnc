@@ -37,8 +37,8 @@ def get_word_num(filename):
 	return(word_num)
 
 def main(listnum) -> None:
-	read_dir = f'stim/split/list-{listnum}/'
-	write_dir = f'stim/labels/list-{listnum}/'
+	read_dir = f'../stim/split/list-{listnum}/'
+	write_dir = f'../stim/labels/list-{listnum}/'
 	check_dir(write_dir)
 
 	for filename in os.listdir(read_dir):
