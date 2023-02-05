@@ -1,0 +1,70 @@
+#!/usr/bin/env python
+
+import os
+import glob
+import argparse
+import pandas as pd
+from pathlib import PurePath
+
+def open_wordlist(listnum):
+	wordlist = f'stim/wordlist/list-{listnum}.csv'
+	if not os.path.isfile(wordlist):
+		d = {
+			'type': [],
+			'num': [],
+			'word': [],
+			}
+		df = pd.DataFrame(data = d)
+		df.to_csv(wordlist, mode = 'w', index = False)
+	return(wordlist)
+
+def write_wordlist(wordlist, type, num, word):
+	print(f"Writing wordlist {wordlist}")
+	d = {
+		'type': type,
+		'num': num,
+		'word': word,
+		}
+	df = pd.DataFrame(data = d)
+	df = sort_wordlist(df)
+	df.to_csv(wordlist, mode = 'a', header = False, index = False)
+
+def sort_wordlist(df):
+	df = df.sort_values(by = ['type', 'num'])
+	return(df)
+
+def main(listnum) -> None:
+	dir = f'stim/labels/list-{listnum}'
+	files = list(glob.glob(os.path.join(dir, '*.wav')))
+
+	wordlist = open_wordlist(listnum)
+
+	type = []
+	num = []
+	word = []
+
+	for file in files:
+		path = PurePath(file)
+		stem = path.stem
+		parts = str(stem).split('-')
+		if len(parts) == 3:
+			type.append(parts[0])
+			num.append(int(parts[1]))
+			word.append(parts[2])
+		if len(parts) == 2:
+			type.append('test')
+			num.append(int(parts[0]))
+			word.append(parts[1])
+
+	write_wordlist(wordlist, type, num, word)
+
+if __name__ == "__main__":
+	parser = argparse.ArgumentParser(description = "Create csv log of words")
+	parser.add_argument('listnum',
+		type = str,
+		nargs = 1,
+		help = 'list number')
+	args = parser.parse_args()
+	listnum = args.listnum[0]
+	print(f"listnum: {listnum}")
+	main(listnum)
