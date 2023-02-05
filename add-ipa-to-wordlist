@@ -1,0 +1,31 @@
+#!/usr/bin/env python
+
+import argparse
+import pandas as pd
+import eng_to_ipa
+
+def main(listnum) -> None:
+	# Load wordlist
+	file = f'stim/wordlist/list-{listnum}.csv'
+	wordlist = pd.read_csv(file)
+
+	# Convert words to IPA
+	words = wordlist['word']
+	ipa = []
+	for word in words:
+		ipa.append(eng_to_ipa.convert(word))
+
+	# Add to file and overwrite
+	wordlist['ipa'] = ipa
+	wordlist.to_csv(file)
+
+if __name__ == "__main__":
+	parser = argparse.ArgumentParser(description = "Add ipa of word to wordlist")
+	parser.add_argument('listnum',
+		type = str,
+		nargs = 1,
+		help = 'list number')
+	args = parser.parse_args()
+	listnum = args.listnum[0]
+	print(f"listnum: {listnum}")
+	main(listnum)
