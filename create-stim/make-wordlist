@@ -54,13 +54,13 @@ def main(listnum) -> None:
         stem = path.stem
         parts = str(stem).split('-')
         if len(parts) == 3:
-            practice = 1
+            practice = True
             num = int(parts[1])
             word = parts[2]
             fp = f'stim/labels/list-{listnum}/practice-{num}-{word}.wav'
 
         if len(parts) == 2:
-            practice = 0
+            practice = False
             num = int(parts[0])
             word = parts[1]
             fp = f'stim/labels/list-{listnum}/{num}-{word}.wav'
