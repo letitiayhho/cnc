@@ -7,64 +7,79 @@ import pandas as pd
 from pathlib import PurePath
 
 def open_wordlist(listnum):
-	wordlist = f'../stim/wordlist/list-{listnum}.csv'
-	if not os.path.isfile(wordlist):
-		d = {
-			'type': [],
-			'num': [],
-			'word': [],
-			}
-		df = pd.DataFrame(data = d)
-		df.to_csv(wordlist, mode = 'w', index = False)
-	return(wordlist)
+    wordlist = f'../stim/wordlist/list-{listnum}.csv'
+    if not os.path.isfile(wordlist):
+        d = {
+            'practice': [],
+            'num': [],
+            'word': [],
+            'fp': [],
+            'listnum': [],
+            }
+        df = pd.DataFrame(data = d)
+        df.to_csv(wordlist, mode = 'w', index = False)
+    return(wordlist)
 
-def write_wordlist(wordlist, type, num, word):
-	print(f"Writing wordlist {wordlist}")
-	d = {
-		'type': type,
-		'num': num,
-		'word': word,
-		}
-	df = pd.DataFrame(data = d)
-	df = sort_wordlist(df)
-	df.to_csv(wordlist, mode = 'a', header = False, index = False)
+def write_wordlist(wordlist, practice, num, word, fp, listnum):
+    print(f"Writing wordlist {wordlist}")
+    d = {
+        'practice': practice,
+        'num': num,
+        'word': word,
+        'fp': fp,
+        'listnum': listnum,
+        }
+    df = pd.DataFrame(data = d)
+    df = sort_wordlist(df)
+    df.to_csv(wordlist, mode = 'a', header = False, index = False)
 
 def sort_wordlist(df):
-	df = df.sort_values(by = ['type', 'num'])
-	return(df)
+    df = df.sort_values(by = ['practice', 'num'])
+    return(df)
 
 def main(listnum) -> None:
-	dir = f'../stim/labels/list-{listnum}'
-	files = list(glob.glob(os.path.join(dir, '*.wav')))
+    dir = f'../stim/labels/list-{listnum}'
+    files = list(glob.glob(os.path.join(dir, '*.wav')))
 
-	wordlist = open_wordlist(listnum)
+    wordlist = open_wordlist(listnum)
 
-	type = []
-	num = []
-	word = []
+    practice_list = []
+    num_list = []
+    word_list = []
+    fp_list = []
+    listnum_list = []
 
-	for file in files:
-		path = PurePath(file)
-		stem = path.stem
-		parts = str(stem).split('-')
-		if len(parts) == 3:
-			type.append(parts[0])
-			num.append(int(parts[1]))
-			word.append(parts[2])
-		if len(parts) == 2:
-			type.append('test')
-			num.append(int(parts[0]))
-			word.append(parts[1])
+    for file in files:
+        path = PurePath(file)
+        stem = path.stem
+        parts = str(stem).split('-')
+        if len(parts) == 3:
+            practice = 1
+            num = int(parts[1])
+            word = parts[2]
+            fp = f'stim/labels/list-{listnum}/practice-{num}-{word}.wav'
 
-	write_wordlist(wordlist, type, num, word)
+        if len(parts) == 2:
+            practice = 0
+            num = int(parts[0])
+            word = parts[1]
+            fp = f'stim/labels/list-{listnum}/{num}-{word}.wav'
+
+        practice_list.append(practice)
+        num_list.append(num)
+        word_list.append(word)
+        fp_list.append(fp)
+        listnum_list.append(listnum)
+
+    write_wordlist(wordlist, practice_list, num_list, word_list, fp_list, listnum_list)
 
 if __name__ == "__main__":
-	parser = argparse.ArgumentParser(description = "Create csv log of words")
-	parser.add_argument('listnum',
-		type = str,
-		nargs = 1,
-		help = 'list number')
-	args = parser.parse_args()
-	listnum = args.listnum[0]
-	print(f"listnum: {listnum}")
-	main(listnum)
+    parser = argparse.ArgumentParser(description = "Create csv log of words")
+    parser.add_argument('listnum',
+        type = int,
+        nargs = 1,
+        help = 'list number')
+    args = parser.parse_args()
+    listnum = args.listnum[0]
+    print(f"listnum: {listnum}")
+    main(listnum)
