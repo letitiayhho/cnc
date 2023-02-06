@@ -5,13 +5,16 @@ from psychopy import sound, gui, visual, core, data, event, logging, clock, colo
 from psychtoolbox import GetSecs, WaitSecs, hid
 from psychopy.hardware.keyboard import Keyboard
 import random
-#import time
 import numpy as np
 from scipy.stats import beta
 import os
 import git
 import pandas as pd
 
+def set_cwd():
+    repo = git.Repo('.', search_parent_directories=True)
+    os.chdir(repo.working_tree_dir)
+    print(repo.working_tree_dir)
 
 def get_window():
     #WIN = visual.Window(size = (1920, 1080),
@@ -23,19 +26,25 @@ def get_window():
     allowGUI = False)
     return(WIN)
 
-def open_log(SUB_NUM):
-    log = "data/logs/sub-" + SUB_NUM + ".log"
+def open_log(SUB_NUM, LIST_NUM):
+    log = "data/sub-" + SUB_NUM + "_list-" + LIST_NUM + ".csv"
 
     if not os.path.isfile(log): # create log file if it doesn't exist
         print(f"Creating {log}")
         d = {
             'sub_num': [],
-            'block': [],
-            'trial_num': [],
-            'tone_num': [],
-            'freq': [],
-            'displaced_freq': [],
+            'list_num': [],
+            'practice': [],
+            'num': [],
+            'word': [],
+            'ipa': [],
             'response': [],
+            'response_ipa': [],
+            'n_matching_phonemes': [],
+            'matching_phonemes': [],
+            'n_missng_phonemes': [],
+            'missing_phonemes': [],
+            'score': [],
             }
         print(d)
         df = pd.DataFrame(data = d)
@@ -44,20 +53,13 @@ def open_log(SUB_NUM):
 
 def get_trial_num(LOG):
     log = pd.read_csv(LOG)
-    trial_nums = log['trial_num']
+    trial_nums = log['num']
     if len(trial_nums) == 0:
         trial_num = 1
     else:
         trial_num = trial_nums.iloc[-1] + 1
     trial_num = int(trial_num)
     return(trial_num)
-
-def get_n_trials(block):
-    if block == 0:
-        n_trials = 3
-    else:
-        n_trials = 20
-    return(n_trials)
 
 def start(WIN, block):
     if block == 0:
@@ -88,19 +90,7 @@ def ready(WIN):
     event.waitKeys(keyList = ['return'])
     WIN.flip()
 
-def get_freqs_from_pdf(a, b):
-    x = np.arange(0, 1, 0.01)
-    r = beta.rvs(a, b, size = 100)
-    r = (r*950) + 50 # Stretch to 1000 Hz starting at 50 Hz
-    r = np.round(r/10)* 10 # Round to nearest 10 Hz
-    r = r.tolist()
-    return(r)
 
-def get_freq(freqs, block):
-    if block == 0: # don't drop the freq during training
-        freq = random.choice(freqs)
-    freq = freqs.pop(random.randrange(len(freqs)))
-    return(freq, freqs)
 
 def play_target(WIN, TONE_DUR, freq):
     target_text = visual.TextStim(WIN, text = "Press 'space' to hear the target tone.")
