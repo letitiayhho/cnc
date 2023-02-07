@@ -14,8 +14,8 @@ trial_num = get_trial_num(LOG)
 
 #start(WIN)
 while trial_num <= 3:
-    word, word_fp = get_word(wordlist, trial_num, practice = True)
-    play_word(WIN, word_fp)
+    word, word_fp, dur = get_word(wordlist, trial_num, practice = True)
+    play_word(WIN, word_fp, dur)
     WaitSecs(0.5)
     get_response(WIN, cmu_dict)
     WaitSecs(2)
@@ -24,8 +24,8 @@ while trial_num <= 3:
 start_trials(WIN)
 trial_num = 1
 while trial_num <= 50:
-    word, word_fp = get_word(wordlist, trial_num, practice = False)
-    play_word(WIN, word_fp)
+    word, word_fp, dur = get_word(wordlist, trial_num, practice = False)
+    play_word(WIN, word_fp, dur)
     WaitSecs(0.5)
     response = get_response(WIN, cmu_dict)
     write_log(LOG, SUB_NUM, LIST_NUM, trial_num, word, response)

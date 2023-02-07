@@ -83,20 +83,19 @@ def start_trials(WIN):
 
 def read_wordlist(LIST_NUM):
     wordlist = pd.read_csv(f'stim/wordlist/list-{LIST_NUM}.csv')
-    print(wordlist)
     return(wordlist)
 
 def get_word(wordlist, trial_num, practice = False):
     row = wordlist[(wordlist['practice'] == practice) & (wordlist['num'] == trial_num)]
-    print(row)
-    print(row['fp'])
     word_fp = row['fp'].iat[0]
     word = row['word'].iat[0]
+    dur = row['duration'].iat[0]
     print(f'trial_num: {trial_num}')
     print(f'word: {word}')
-    return(word, word_fp)
+    print(f'dur: {dur}')
+    return(word, word_fp, dur)
 
-def play_word(WIN, word_fp):
+def play_word(WIN, word_fp, dur):
     target_text = visual.TextStim(WIN, text = "Press 'space' to hear the target word.")
     target_text.draw()
     WIN.flip()
@@ -106,14 +105,19 @@ def play_word(WIN, word_fp):
         keys = event.getKeys(keyList = ['space'])
         if 'space' in keys:
             snd.play()
-            WaitSecs(1.2) # longest word is 1.12 secs
+            WaitSecs(dur + 0.2) # longest word is 1.12 secs
             print('Word played')
             WIN.flip()
             break
 
-def get_response(WIN, cmu_dict):
+def turn_response_into_string(response):
+    flattened = [item for sublist in response for item in sublist]
+    response = ''.join(flattened)
+    return(response)
+
+def get_response(WIN, cmu_dict, text = "What word did you hear?"):
     # Prompt response
-    display_instructions(WIN, "What word did you hear?")
+    display_instructions(WIN, text)
 
     # Fetch response
     response = []
@@ -122,11 +126,8 @@ def get_response(WIN, cmu_dict):
 
     while True:
         keys = event.getKeys(keyList = keylist)
-        print(keys)
-        if response in cmu_dict and 'return' in keys:
+        if response_text and 'return' in keys: # empty response not accepted
             break
-        elif response not in cmu_dict and 'return' in keys:
-            display_instructions(WIN, "Please enter a viable word!")
         elif keys:
             if 'return' in keys:
                 None
@@ -135,9 +136,42 @@ def get_response(WIN, cmu_dict):
             else:
                 response.append(keys)
             response_text = ''.join([item for sublist in response for item in sublist])
-            #WIN.flip()
-            display_instructions(WIN, response_text)
-            #WIN.flip()
+            WIN.flip()
+            show_response = visual.TextStim(WIN,
+                                           text = response_text,
+                                           pos=(0.0, 0.0),
+                                           color=(1, 1, 1),
+                                           colorSpace='rgb')
+            show_response.draw()
+            WIN.flip()
+
+    response = response_text
+    if response not in cmu_dict:
+        response = get_response(WIN, cmu_dict, text = "Please enter a viable word!")
+
+    print(response)
+
+
+#    while True:
+#        keys = event.getKeys(keyList = keylist)
+#        if 'return' in keys:
+#            break
+#        #if response in cmu_dict and 'return' in keys:
+#        #    break
+#        #elif response not in cmu_dict and 'return' in keys:
+#        #    display_instructions(WIN, "Please enter a viable word!")
+#        elif keys:
+#            if 'return' in keys:
+#                None
+#            elif 'backspace' in keys:
+#                response = response[:-1]
+#            else:
+#                response.append(keys)
+#            response_text = ''.join([item for sublist in response for item in sublist])
+#            #WIN.flip()
+#            display_instructions(WIN, response_text)
+#            #WIN.flip()
+#    print(response)
 
     return(response)
 
