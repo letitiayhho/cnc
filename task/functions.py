@@ -34,17 +34,9 @@ def open_log(SUB_NUM, LIST_NUM):
         d = {
             'sub_num': [],
             'list_num': [],
-            'practice': [],
-            'num': [],
-            'word': [],
-            'ipa': [],
+            'trial_num': [],
+            'word_fp': [],
             'response': [],
-            'response_ipa': [],
-            'n_matching_phonemes': [],
-            'matching_phonemes': [],
-            'n_missng_phonemes': [],
-            'missing_phonemes': [],
-            'score': [],
             }
         print(d)
         df = pd.DataFrame(data = d)
@@ -90,86 +82,73 @@ def ready(WIN):
     event.waitKeys(keyList = ['return'])
     WIN.flip()
 
+def read_wordlist(LIST_NUM):
+    wordlist = pd.read_csv(f'stim/wordlist/list-{LIST_NUM}.csv')
+    return(wordlist)
 
+def get_word(wordlist, trial_num, practice = False):
+    row = df[(df['practice'] == 1) & (df['num'] == 1)]
+    word_fp = row['fp'].iat[0]
+    word = row['word'].iat[0]
+    print(f'trial_num: {trial_num}')
+    print(f'word: {word}')
+    return(word, word_fp
 
-def play_target(WIN, TONE_DUR, freq):
-    target_text = visual.TextStim(WIN, text = "Press 'space' to hear the target tone.")
+def play_word(WIN, word_fp):
+    target_text = visual.TextStim(WIN, text = "Press 'space' to hear the target word.")
     target_text.draw()
     WIN.flip()
-    snd = Sound(freq, secs = TONE_DUR)
+    snd = Sound(word_fp)
 
     while True:
         keys = event.getKeys(keyList = ['space'])
         if 'space' in keys:
             snd.play()
-            WaitSecs(TONE_DUR)
-            print('Target played')
+            WaitSecs(1.2) # longest word is 1.12 secs
+            print('Word played')
             WIN.flip()
             break
 
-def get_displaced_freq(freq):
-    interval = random.randint(-10, 10)
-    displacement = interval * freq * 0.02 # displace at intervals of 20% original tone
-    displacement = round(displacement) # Round to nearest int
-    displaced_freq = freq + displacement
-    print(f'displaced_freq: {displaced_freq}')
-    return(displaced_freq)
+def get_response(WIN, cmu_dict):
+    # Prompt response
+    display_instructions(WIN, "What word did you hear?")
 
-def play_tone(WIN, TONE_DUR, freq):
-    WIN.flip()
-    now = GetSecs()
-    snd = Sound(freq, secs = TONE_DUR)
-    prompt = visual.TextStim(WIN, '*')
-    prompt.draw()
-    snd.play()
-    WIN.flip()
-    WaitSecs(TONE_DUR)
-    WIN.flip()
-
-def white_noise(secs):
-    start = random.uniform(0, 8)
-    stop = start + secs + random.uniform(-0.1, 0.1)
-    snd = Sound('gaussianwhitenoise.wav', startTime = start, stopTime = stop, volume = 0.5)
-    snd.play()
-    WaitSecs(stop - start)
-
-def pitch_adjustment(WIN, TONE_DUR, freq, displaced_freq):
-    play_tone(WIN, TONE_DUR, displaced_freq)
-
-    keylist = ['up', 'down', 'return']
-    interval = int(round(freq * 0.02))
+    # Fetch response
+    response = []
+    response_text = ''
 
     while True:
-        keys = event.getKeys(keyList = keylist)
-        if 'return' in keys: # empty response not accepted
+        keys = event.getKeys()
+        if response in cmu_dict and 'return' in keys:
             break
+        elif response not in cmu_dict and 'return' in keys:
+            display_instructions(WIN, "Please enter a viable word!")
         elif keys:
-            if 'up' in keys:
-                displaced_freq += interval
-                play_tone(WIN, TONE_DUR, displaced_freq)
-            elif 'down' in keys:
-                displaced_freq -= interval
-                play_tone(WIN, TONE_DUR, displaced_freq)
+            if 'return' in keys:
+                None
+            elif 'backspace' in keys:
+                response = response[:-1]
+            else:
+                response.append(keys)
+            response_text = ''.join([item for sublist in response for item in sublist])
+            #WIN.flip()
+            display_instructions(WIN, response_text)
+            #WIN.flip()
 
-    response = displaced_freq
     return(response)
-
-def feedback(WIN, freq, response):
-    display_instructions(WIN, f"Your answer was {response} Hz, the target was {freq} Hz.")
 
 def broadcast(n_tones, var):
     if not isinstance(var, list):
         broadcasted_array = [var]*n_tones
     return(broadcasted_array)
 
-def write_log(LOG, SUB_NUM, block, trial_num, freq, displaced_freq, response):
+def write_log(LOG, SUB_NUM, LIST_NUM, trial_num, word, response):
     print("Writing to log file")
     d = {
         'sub_num': SUB_NUM,
-        'block': block,
+        'list_num': LIST_NUM,
         'trial_num': trial_num,
-        'freq': freq,
-        'displaced_freq': displaced_freq,
+        'word': word,
         'response': response,
         }
     df = pd.DataFrame(data = d,
@@ -177,7 +156,4 @@ def write_log(LOG, SUB_NUM, block, trial_num, freq, displaced_freq, response):
     df.to_csv(LOG, mode='a', header = False, index = False)
 
 def end(WIN, block):
-    if block == 0:
-        display_instructions(WIN, "Congratulations for finishing the practice block. Let your experimenter know if you have any questions or if you would like to repeat this practice block. If you are ready, you will now move on to the 5 experiment blocks, each of which will have 20 trials. \n \n Press 'enter' to complete this block.")
-    else:
-        display_instructions(WIN, f"End of block! You may now take a break if you wish. \n \n Press 'enter' to complete this block.")
+    display_instructions(WIN, f"End of block! You may now take a break if you wish. \n \n Press 'enter' to complete this block.")
