@@ -9,6 +9,7 @@ import numpy as np
 from scipy.stats import beta
 import os
 import git
+import json
 import pandas as pd
 
 def set_cwd():
@@ -25,6 +26,11 @@ def get_window():
     pos = (0, 0),
     allowGUI = False)
     return(WIN)
+
+def load_cmu_dict(path):
+    with open(path) as json_fp:
+        cmu_dict = json.load(json_fp)
+    return(cmu_dict)
 
 def open_log(SUB_NUM, LIST_NUM):
     log = "data/sub-" + SUB_NUM + "_list-" + LIST_NUM + ".csv"
@@ -45,7 +51,7 @@ def open_log(SUB_NUM, LIST_NUM):
 
 def get_trial_num(LOG):
     log = pd.read_csv(LOG)
-    trial_nums = log['num']
+    trial_nums = log['trial_num']
     if len(trial_nums) == 0:
         trial_num = 1
     else:
@@ -68,7 +74,7 @@ def display_instructions(WIN, text):
     print(text)
 
 def start(WIN):
-    display_instructions(WIN, "Welcome to the Consonant-Nucleus-Consonant test. \n \n  Press any key to begin.")
+    display_instructions(WIN, "Welcome to the Consonant-Nucleus-Consonant task. \n \n  Press any key to begin.")
     display_instructions(WIN, "For this task you will hear a series of words. After every word that you hear you will be asked to type in the word that you thought you heard. You must enter a word that recognized by the Carnegie Mellon Pronouncing Dictionary. \n\n Press any key to continue.")
     display_instructions(WIN, "You will now complete three practice trials. Please let you experimenter know if you have any questions or are experiencing any difficulties with the display or audio. \n \n Press any key to continue to the practice trials.")
 
@@ -77,15 +83,18 @@ def start_trials(WIN):
 
 def read_wordlist(LIST_NUM):
     wordlist = pd.read_csv(f'stim/wordlist/list-{LIST_NUM}.csv')
+    print(wordlist)
     return(wordlist)
 
 def get_word(wordlist, trial_num, practice = False):
-    row = df[(df['practice'] == 1) & (df['num'] == 1)]
+    row = wordlist[(wordlist['practice'] == practice) & (wordlist['num'] == trial_num)]
+    print(row)
+    print(row['fp'])
     word_fp = row['fp'].iat[0]
     word = row['word'].iat[0]
     print(f'trial_num: {trial_num}')
     print(f'word: {word}')
-    return(word, word_fp
+    return(word, word_fp)
 
 def play_word(WIN, word_fp):
     target_text = visual.TextStim(WIN, text = "Press 'space' to hear the target word.")
@@ -109,9 +118,11 @@ def get_response(WIN, cmu_dict):
     # Fetch response
     response = []
     response_text = ''
+    keylist = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'return', 'backspace']
 
     while True:
-        keys = event.getKeys()
+        keys = event.getKeys(keyList = keylist)
+        print(keys)
         if response in cmu_dict and 'return' in keys:
             break
         elif response not in cmu_dict and 'return' in keys:
