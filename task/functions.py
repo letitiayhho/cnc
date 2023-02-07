@@ -63,24 +63,17 @@ def display_instructions(WIN, text):
     instructions = visual.TextStim(WIN, text = text)
     instructions.draw()
     WIN.flip()
-    event.waitKeys(keyList = ['return'])
+    event.waitKeys()
     WIN.flip()
     print(text)
 
-def instructions(WIN):
-    display_instructions(WIN, "Welcome to the experiment. \n \n  Press 'enter' to begin.")
-    display_instructions(WIN, "At each trial you will be presented with a target tone. After the target you will hear a short burst of white noise followed by a pitch-adjusted version of the target tone. Please use the 'up' and 'down' arrow keys to adjust the pitch of the displaced tone until it matches the target tone then press 'enter' to submit your answer. \n \n  Press 'enter' to continue.")
-    display_instructions(WIN, "You will now complete three practice trials. Please let you experimenter know if you have any questions or are experiencing any difficulties with the display or audio. \n \n Press 'enter' to continue to the practice trials.")
+def start(WIN):
+    display_instructions(WIN, "Welcome to the Consonant-Nucleus-Consonant test. \n \n  Press any key to begin.")
+    display_instructions(WIN, "For this task you will hear a series of words. After every word that you hear you will be asked to type in the word that you thought you heard. You must enter a word that recognized by the Carnegie Mellon Pronouncing Dictionary. \n\n Press any key to continue.")
+    display_instructions(WIN, "You will now complete three practice trials. Please let you experimenter know if you have any questions or are experiencing any difficulties with the display or audio. \n \n Press any key to continue to the practice trials.")
 
-def block_welcome(WIN, block):
-    display_instructions(WIN, f"Welcome to block number {block}/5. \n \n Press 'enter' to begin the block.")
-
-def ready(WIN):
-    block_begin = visual.TextStim(WIN, text = "Press 'enter' to begin!")
-    block_begin.draw()
-    WIN.flip()
-    event.waitKeys(keyList = ['return'])
-    WIN.flip()
+def start_trials(WIN):
+    display_instructions(WIN, "This is the end of the practice trials. Press any key to proceed to the remaining trials.")
 
 def read_wordlist(LIST_NUM):
     wordlist = pd.read_csv(f'stim/wordlist/list-{LIST_NUM}.csv')
@@ -156,4 +149,4 @@ def write_log(LOG, SUB_NUM, LIST_NUM, trial_num, word, response):
     df.to_csv(LOG, mode='a', header = False, index = False)
 
 def end(WIN, block):
-    display_instructions(WIN, f"End of block! You may now take a break if you wish. \n \n Press 'enter' to complete this block.")
+    display_instructions(WIN, f"End of block! You may now take a break if you wish. \n \n Press any key to complete this block.")
