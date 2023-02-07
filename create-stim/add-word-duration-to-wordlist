@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+
+import argparse
+import wave
+import contextlib
+import pandas as pd
+import git
+import os
+
+def main(listnum) -> None:
+    repo = git.Repo('.', search_parent_directories = True)
+    os.chdir(repo.working_tree_dir)
+
+    # Load wordlist
+    file = f'stim/wordlist/list-{listnum}.csv'
+    wordlist = pd.read_csv(file)
+
+    fps = wordlist['fp']
+    durations = []
+    for fp in fps:
+        with contextlib.closing(wave.open(fp, 'r')) as f:
+            frames = f.getnframes()
+            rate = 44100
+            duration = frames / rate
+            duration = round(duration, 3)
+            durations.append(duration)
+
+    # Add to file and overwrite
+    wordlist['duration'] = durations
+    wordlist.to_csv(file)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description = "Add ipa of word to wordlist")
+    parser.add_argument('listnum',
+        type = str,
+        nargs = 1,
+        help = 'list number')
+    args = parser.parse_args()
+    listnum = args.listnum[0]
+    print(f"listnum: {listnum}")
+    main(listnum)
