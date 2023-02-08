@@ -14,6 +14,9 @@ def add_ipa(df, col, ipa_col):
     return(df)
 
 def score_word(word_ipa, response_ipa):
+    word_ipa = string_to_list(word_ipa)
+    response_ipa = string_to_list(response_ipa)
+
     # Compare first phon
     words_ipa, response_ipa, hit_phons, n_hit_phons, missed_phons = compare_first_phon(word_ipa, response_ipa)
 
@@ -28,12 +31,7 @@ def score_word(word_ipa, response_ipa):
 
     hit_phons = flatten(hit_phons)
     missed_phons = flatten(missed_phons)
-    
-    print("Comparing rest phon")
-    print(f"hit_phons: {hit_phons}")
-    print(f"n_hit_phons: {n_hit_phons}")
-    print(f"missed_phons: {missed_phons}")
-    
+
     return(n_hit_phons, hit_phons, missed_phons)
 
 def compare_first_phon(word_ipa, response_ipa):
@@ -47,15 +45,17 @@ def compare_first_phon(word_ipa, response_ipa):
         n_hit_phons = 0
         missed_phons = [word_ipa[0]]
 
+    print(word_ipa)
+    print(response_ipa)
     del word_ipa[0]
     del response_ipa[0]
 
-    print("Comparing first phon")
-    print(f"hit_phons: {hit_phons}")
-    print(f"n_hit_phons: {n_hit_phons}")
-    print(f"missed_phons: {missed_phons}")
-
     return(word_ipa, response_ipa, hit_phons, n_hit_phons, missed_phons)
+
+def string_to_list(s):
+    l = []
+    l[:0] = s
+    return l
 
 def flatten(l):
     return [item for sublist in l for item in sublist]
