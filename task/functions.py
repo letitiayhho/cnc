@@ -41,7 +41,7 @@ def open_log(SUB_NUM, LIST_NUM):
             'sub_num': [],
             'list_num': [],
             'trial_num': [],
-            'word_fp': [],
+            'word': [],
             'response': [],
             }
         print(d)
@@ -115,7 +115,7 @@ def turn_response_into_string(response):
     response = ''.join(flattened)
     return(response)
 
-def get_response(WIN, cmu_dict, text = "What word did you hear?"):
+def get_response(WIN, cmu_dict, text = "What word did you hear? Press any key to start."):
     # Prompt response
     display_instructions(WIN, text)
 
@@ -127,6 +127,7 @@ def get_response(WIN, cmu_dict, text = "What word did you hear?"):
     while True:
         keys = event.getKeys(keyList = keylist)
         if response_text and 'return' in keys: # empty response not accepted
+            WIN.flip()
             break
         elif keys:
             if 'return' in keys:
