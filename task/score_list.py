@@ -60,7 +60,7 @@ def string_to_list(s):
 def flatten(l):
     return [item for sublist in l for item in sublist]
 
-def score_all_words(df, word_ipa, response_ipa):
+def count_correct_phons(df, word_ipa, response_ipa):
     n_hit_phons_list = []
     hit_phons_list = []
     missed_phons_list = []
@@ -78,6 +78,9 @@ def score_all_words(df, word_ipa, response_ipa):
 
     return(df)
 
+def total_correct_phons(df):
+
+
 def score(LOG):
     # Add ipa for words and responses
     df = pd.read_csv(LOG)
@@ -85,7 +88,9 @@ def score(LOG):
     df = add_ipa(df, col = 'response', ipa_col = 'response_ipa')
 
     # Score each word
-    df = score_all_words(df, df['word_ipa'], df['response_ipa'])
+    df = count_correct_phons(df, df['word_ipa'], df['response_ipa'])
+
+    df = total_correct_phons(df):
 
     # Save to log
     df.to_csv(LOG)
