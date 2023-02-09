@@ -78,9 +78,6 @@ def count_correct_phons(df, word_ipa, response_ipa):
 
     return(df)
 
-def total_correct_phons(df):
-
-
 def score(LOG):
     # Add ipa for words and responses
     df = pd.read_csv(LOG)
@@ -89,8 +86,6 @@ def score(LOG):
 
     # Score each word
     df = count_correct_phons(df, df['word_ipa'], df['response_ipa'])
-
-    df = total_correct_phons(df):
 
     # Save to log
     df.to_csv(LOG)
