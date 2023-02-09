@@ -1,6 +1,7 @@
 from psychtoolbox import WaitSecs
 from functions import *
 from score_list import *
+from aggregate_score import *
 
 SUB_NUM = input('Input subject number: ')
 LIST_NUM = input('Input list number [1-10]: ')
@@ -12,7 +13,7 @@ cmu_dict = load_cmu_dict('stim/CMU_dict.json')
 LOG = open_log(SUB_NUM, LIST_NUM)
 trial_num = get_trial_num(LOG)
 
-#start(WIN)
+start(WIN)
 while trial_num <= 3:
     word, word_fp, dur = get_word(wordlist, trial_num, practice = True)
     play_word(WIN, word_fp, dur)
@@ -39,4 +40,7 @@ core.quit()
 
 print("Scoring...")
 score(LOG)
+
+print("Getting aggregate score...")
+aggregate_score(LOG)
 
