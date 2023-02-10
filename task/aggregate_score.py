@@ -1,7 +1,7 @@
 import pandas as pd
 
 def get_correct_phon_counts(scores):
-    counts = df['n_hit_phons'].value_counts()
+    counts = scores.value_counts()
     if len(counts) < 3:
         missing_count_val = {1, 2, 3}.difference(set(counts.index))
         missing_count_val = list(missing_count_val)
@@ -17,6 +17,13 @@ def get_correct_phon_counts(scores):
 
     return(out)
 
+def missed_phon_counts(missed_phons):
+    huge_str = ''.join(list(missed_phons))
+    replacements = ["[", "]", ",", "'", " "]
+    for char in replacements:
+        huge_str = huge_str.replace(char, "")
+    return(huge_str)
+
 def get_correct_percentages(df, out):
     # Add col percent_words_fully_correct, percent_phonemes_correct
     out['percent_words_fully_correct'] = out['3_phons_correct']/50
@@ -31,7 +38,8 @@ def add_info(df, out):
 
 def aggregate_score(log):
     df = pd.read_csv(log)
-    out = get_correct_phon_counts(df)
+    out = get_correct_phon_counts(df['n_hit_phons'])
     out = get_correct_percentages(df, out)
+    out['missed_phons'] = missed_phon_counts(df['missed_phons'])
     out = add_info(df, out)
     out.to_csv('../data/aggregate.csv', mode='a')
