@@ -27,10 +27,9 @@ def get_window():
     allowGUI = False)
     return(WIN)
 
-def load_cmu_dict(path):
-    with open(path) as json_fp:
-        cmu_dict = json.load(json_fp)
-    return(cmu_dict)
+def load_cmu_words(path):
+    cmu_words = pd.read_csv(path).values
+    return(cmu_words)
 
 def open_log(SUB_NUM, LIST_NUM):
     log = "data/sub-" + SUB_NUM + "_list-" + LIST_NUM + ".csv"
@@ -115,7 +114,7 @@ def turn_response_into_string(response):
     response = ''.join(flattened)
     return(response)
 
-def get_response(WIN, cmu_dict, text = "What word did you hear? Press any key to start."):
+def get_response(WIN, cmu_words, text = "What word did you hear? Press any key to start."):
     # Prompt response
     display_instructions(WIN, text)
 
@@ -147,8 +146,8 @@ def get_response(WIN, cmu_dict, text = "What word did you hear? Press any key to
             WIN.flip()
 
     response = response_text
-    if response not in cmu_dict:
-        response = get_response(WIN, cmu_dict, text = "Please enter a viable word!")
+    if response not in cmu_words:
+        response = get_response(WIN, cmu_words, text = "Please enter a viable word!")
 
     print(response)
 
